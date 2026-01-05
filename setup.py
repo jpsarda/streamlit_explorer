@@ -7,7 +7,7 @@ setup(
     name="streamlit_explorer",
     version="0.1.0",
     author="Rezinski Oleg",
-    author_email="",
+    author_email="gitsoftmail@gmail.com",
     description="A custom file and folder browser for Streamlit applications",
     long_description=long_description,
     long_description_content_type="text/markdown",
@@ -31,7 +31,7 @@ setup(
     ],
     keywords="streamlit file-picker folder-picker directory-picker file-browser file-explorer folder-explorer",
     project_urls={
-        # "Bug Reports": "https://github.com/yourusername/streamlit-path-picker/issues",
-        # "Source": "https://github.com/yourusername/streamlit-path-picker",
+        "Bug Reports": "https://github.com/OlegRezinski/streamlit_explorer/issues",
+        "Source": "https://github.com/OlegRezinski/streamlit_explorer",
     },
 )

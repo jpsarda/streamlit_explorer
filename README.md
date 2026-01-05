@@ -1,4 +1,4 @@
-# Streamlit Path Picker
+# Streamlit Explorer
 
 A custom file and folder browser component for Streamlit applications, providing an intuitive interface for selecting files and directories with a Windows File Explorer-like experience.
 
@@ -23,7 +23,7 @@ A custom file and folder browser component for Streamlit applications, providing
 ## 📦 Installation
 
 ```bash
-pip install streamlit-path-picker
+pip install streamlit-explorer
 ```
 
 ## 🚀 Quick Start
@@ -32,7 +32,7 @@ pip install streamlit-path-picker
 
 ```python
 import streamlit as st
-from streamlit_path_picker import DirPicker
+from streamlit_explorer import DirPicker
 
 st.title("Folder Selection Example")
 
@@ -47,7 +47,7 @@ if selected_folder:
 
 ```python
 import streamlit as st
-from streamlit_path_picker import FilePicker
+from streamlit_explorer import FilePicker
 
 st.title("File Selection Example")
 
@@ -69,7 +69,7 @@ if selected_file:
 
 ```python
 import streamlit as st
-from streamlit_path_picker import DirPicker
+from streamlit_explorer import DirPicker
 
 selected_folder = DirPicker(key="my_folder")
 
@@ -81,7 +81,7 @@ if selected_folder:
 
 ```python
 import streamlit as st
-from streamlit_path_picker import FilePicker
+from streamlit_explorer import FilePicker
 
 # Filter for specific file types
 selected_file = FilePicker(
@@ -97,7 +97,7 @@ if selected_file:
 
 ```python
 import streamlit as st
-from streamlit_path_picker import DirPicker, FilePicker
+from streamlit_explorer import DirPicker, FilePicker
 
 # Start from a specific directory
 folder = DirPicker(
@@ -115,7 +115,7 @@ file = FilePicker(
 
 ```python
 import streamlit as st
-from streamlit_path_picker import DirPicker, FilePicker
+from streamlit_explorer import DirPicker, FilePicker
 
 col1, col2 = st.columns(2)
 
@@ -138,7 +138,7 @@ config_file = FilePicker(
 
 ```python
 import streamlit as st
-from streamlit_path_picker import DirPicker, FilePicker
+from streamlit_explorer import DirPicker, FilePicker
 import os
 
 st.title("📁 File Processing Application")
@@ -275,8 +275,8 @@ When using FilePicker with the `file_extensions` parameter:
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/streamlit-path-picker.git
-cd streamlit-path-picker
+git clone https://github.com/OlegRezinski/streamlit_explorer.git
+cd streamlit_explorer
 
 # Install in development mode
 pip install -e .
@@ -309,9 +309,9 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 💬 Support
 
-- 📫 Report issues: [GitHub Issues](https://github.com/yourusername/streamlit-path-picker/issues)
-- 💡 Feature requests: [GitHub Discussions](https://github.com/yourusername/streamlit-path-picker/discussions)
-- 📖 Documentation: [GitHub Wiki](https://github.com/yourusername/streamlit-path-picker/wiki)
+- 📫 Report issues: [GitHub Issues](https://github.com/OlegRezinski/streamlit_explorer/issues)
+- 💡 Feature requests: [GitHub Discussions](https://github.com/OlegRezinski/streamlit_explorer/discussions)
+- 📖 Documentation: [GitHub Wiki](https://github.com/OlegRezinski/streamlit_explorer/wiki)
 
 ## 🙏 Acknowledgments
 

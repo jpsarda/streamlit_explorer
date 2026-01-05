@@ -10,7 +10,7 @@ readme = "README.md"
 requires-python = ">=3.8"
 license = {text = "MIT"}
 authors = [
-    {name = "Rezinski Oleg", email = ""}
+    {name = "Rezinski Oleg", email = "gitsoftmail@gmail.com"}
 ]
 keywords = ["streamlit", "file-picker", "folder-picker", "directory-picker", "file-browser", "file-explorer", "directory-explorer", "folder-explorer"]
 classifiers = [
@@ -30,6 +30,6 @@ dependencies = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/yourusername/streamlit-path-picker"
-# "Bug Reports" = "https://github.com/yourusername/streamlit-path-picker/issues"
-# "Source" = "https://github.com/yourusername/streamlit-path-picker"
+Homepage = "https://github.com/OlegRezinski/streamlit_explorer"
+ "Bug Reports" = "https://github.com/OlegRezinski/streamlit_explorer/issues"
+ "Source" = "https://github.com/OlegRezinski/streamlit_explorer"
