@@ -99,12 +99,45 @@ def FilePicker(key="file_picker", start_path=None, file_extensions=None):
     return st.session_state[f'{key}_selected']
 
 
-@st.dialog("Select Folder", width="large")
+@st.dialog("Select Folder", width="medium")
 def _show_dir_picker_dialog(key):
     """Internal function to display the folder picker dialog."""
 
     @st.fragment
     def folder_content():
+        st.markdown("""
+            <style>
+            /* 1. Réduire l'espace entre les éléments dans TOUS les blocs verticaux */
+            [data-testid="stVerticalBlock"] {
+                gap: 0.2rem !important;
+            }
+
+            /* 2. Réduire le padding interne des containers */
+            [data-testid="stVerticalBlockBorderWrapper"] > div:first-child {
+                padding: 0.5rem !important;
+            }
+
+            /* 3. Réduire la taille des boutons pour qu'ils soient moins hauts */
+            button[data-testid="stBaseButton-secondary"] {
+                padding-top: 0px !important;
+                padding-bottom: 0px !important;
+                min-height: 1.8rem !important;
+                line-height: 1.2 !important;
+            }
+
+            /* 4. Réduire la marge sous les textes (st.write / p) */
+            .stMarkdown p {
+                margin-bottom: 0px !important;
+            }
+
+            /* 5. Optionnel : Réduire la taille de la police pour gagner encore plus de place */
+            .stMarkdown p, button span {
+                font-size: 0.85rem !important;
+            }
+            </style>
+        """, unsafe_allow_html=True)
+
+
         current = st.session_state[f'{key}_current_path']
 
         # Initialize text input state if needed
@@ -126,8 +159,10 @@ def _show_dir_picker_dialog(key):
                     st.session_state[f'{key}_current_path'] = new_path
                     st.session_state[f'{key}_path_input_value'] = new_path
 
-        st.text_input("Enter path:", value=current,
-                      key=f'{key}_path_input_key', label_visibility="collapsed",
+        st.text_input("Enter path:", 
+                      #value=current,
+                      key=f'{key}_path_input_key', 
+                      label_visibility="collapsed",
                       on_change=on_path_change)
 
         # Search input
@@ -157,10 +192,33 @@ def _show_dir_picker_dialog(key):
             st.session_state[f'{key}_current_path'] = parent_path
             st.rerun(scope="fragment")
 
+               #  On injecte le CSS pour forcer la hauteur relative
+        st.markdown("""
+            <style>
+            /* 1. On cible le wrapper de mise en page (stLayoutWrapper) */
+            div[data-testid="stLayoutWrapper"][height="450px"] {
+                height: auto !important;
+                max-height: 40vh !important;
+                min-height: 150px !important;
+            }
+
+            /* 2. On cible le bloc vertical interne (stVerticalBlock) */
+            div[data-testid="stVerticalBlock"][height="450px"] {
+                height: auto !important;
+                max-height: 40vh !important;
+            }
+
+            /* 3. On s'assure que le scroll fonctionne toujours */
+            div[data-testid="stVerticalBlock"] {
+                overflow-y: auto !important;
+            }
+            </style>
+        """, unsafe_allow_html=True)
+
         # Create a scrollable container for folders
         with st.container(height=450):
             if folders:
-                st.write("**Click a folder to navigate:**")
+                #st.write("**Click a folder to navigate:**")
                 for folder in folders:
                     if st.button(f"📂 {folder}", key=f"{key}_folder_{folder}", use_container_width=True):
                         st.session_state[f'{key}_path_history'].append(st.session_state[f'{key}_current_path'])
@@ -196,12 +254,44 @@ def _show_dir_picker_dialog(key):
     folder_content()
 
 
-@st.dialog("Select File", width="large")
+@st.dialog("Select File", width="merdium")
 def _show_file_picker_dialog(key):
     """Internal function to display the file picker dialog."""
 
     @st.fragment
     def file_content():
+        st.markdown("""
+            <style>
+            /* 1. Réduire l'espace entre les éléments dans TOUS les blocs verticaux */
+            [data-testid="stVerticalBlock"] {
+                gap: 0.2rem !important;
+            }
+
+            /* 2. Réduire le padding interne des containers */
+            [data-testid="stVerticalBlockBorderWrapper"] > div:first-child {
+                padding: 0.5rem !important;
+            }
+
+            /* 3. Réduire la taille des boutons pour qu'ils soient moins hauts */
+            button[data-testid="stBaseButton-secondary"] {
+                padding-top: 0px !important;
+                padding-bottom: 0px !important;
+                min-height: 1.8rem !important;
+                line-height: 1.2 !important;
+            }
+
+            /* 4. Réduire la marge sous les textes (st.write / p) */
+            .stMarkdown p {
+                margin-bottom: 0px !important;
+            }
+
+            /* 5. Optionnel : Réduire la taille de la police pour gagner encore plus de place */
+            .stMarkdown p, button span {
+                font-size: 0.85rem !important;
+            }
+            </style>
+        """, unsafe_allow_html=True)
+                
         current = st.session_state[f'{key}_current_path']
         file_extensions = st.session_state[f'{key}_file_extensions']
 
@@ -224,8 +314,10 @@ def _show_file_picker_dialog(key):
                     st.session_state[f'{key}_current_path'] = new_path
                     st.session_state[f'{key}_path_input_value'] = new_path
 
-        st.text_input("Enter path:", value=current,
-                      key=f'{key}_path_input_key', label_visibility="collapsed",
+        st.text_input("Enter path:", 
+                      #value=current,
+                      key=f'{key}_path_input_key', 
+                      label_visibility="collapsed",
                       on_change=on_path_change)
 
         # Search input
@@ -264,11 +356,36 @@ def _show_file_picker_dialog(key):
             st.session_state[f'{key}_current_path'] = parent_path
             st.rerun(scope="fragment")
 
+
+        #  On injecte le CSS pour forcer la hauteur relative
+        st.markdown("""
+            <style>
+            /* 1. On cible le wrapper de mise en page (stLayoutWrapper) */
+            div[data-testid="stLayoutWrapper"][height="450px"] {
+                height: auto !important;
+                max-height: 40vh !important;
+                min-height: 150px !important;
+            }
+
+            /* 2. On cible le bloc vertical interne (stVerticalBlock) */
+            div[data-testid="stVerticalBlock"][height="450px"] {
+                height: auto !important;
+                max-height: 40vh !important;
+            }
+
+            /* 3. On s'assure que le scroll fonctionne toujours */
+            div[data-testid="stVerticalBlock"] {
+                overflow-y: auto !important;
+            }
+            </style>
+        """, unsafe_allow_html=True)
+
+        
         # Create a scrollable container for folders and files
         with st.container(height=450):
             # Display folders
             if folders:
-                st.write("**Folders:**")
+                #st.write("**Folders:**")
                 for folder in folders:
                     if st.button(f"📂 {folder}", key=f"{key}_folder_{folder}", use_container_width=True):
                         st.session_state[f'{key}_path_history'].append(st.session_state[f'{key}_current_path'])
@@ -277,7 +394,7 @@ def _show_file_picker_dialog(key):
 
             # Display files
             if files:
-                st.write("**Files:**")
+                #st.write("**Files:**")
                 for file in files:
                     if st.button(f"📄 {file}", key=f"{key}_file_{file}", use_container_width=True):
                         st.session_state[f'{key}_selected'] = os.path.join(current, file)
