@@ -47,6 +47,7 @@ def DirPicker(key="dir_picker", start_path=None):
 
     # Show dialog if flag is set
     if st.session_state[f'{key}_show_dialog']:
+        st.session_state[f'{key}_show_dialog'] = False # Correction to avoid dialog being randomly presented when we quit by clicking on top/right cross or outside of the dialog
         _show_dir_picker_dialog(key)
 
     return st.session_state[f'{key}_selected']
@@ -92,6 +93,7 @@ def FilePicker(key="file_picker", start_path=None, file_extensions=None):
 
     # Show dialog if flag is set
     if st.session_state[f'{key}_show_dialog']:
+        st.session_state[f'{key}_show_dialog'] = False # Correction to avoid dialog being randomly presented when we quit by clicking on top/right cross or outside of the dialog
         _show_file_picker_dialog(key)
 
     return st.session_state[f'{key}_selected']
@@ -181,12 +183,14 @@ def _show_dir_picker_dialog(key):
         with col2:
             if st.button("✅ Select", type="primary", use_container_width=True, key=f"{key}_select_btn"):
                 st.session_state[f'{key}_selected'] = st.session_state[f'{key}_current_path']
-                st.session_state[f'{key}_show_dialog'] = False
+                # no need, st.session_state[f'{key}_show_dialog'] is False as soon as dialog is launched
+                #st.session_state[f'{key}_show_dialog'] = False
                 st.rerun()
 
         with col3:
             if st.button("❌ Cancel", use_container_width=True, key=f"{key}_cancel_btn"):
-                st.session_state[f'{key}_show_dialog'] = False
+                # no need, st.session_state[f'{key}_show_dialog'] is False as soon as dialog is launched
+                #st.session_state[f'{key}_show_dialog'] = False
                 st.rerun()
 
     folder_content()
@@ -277,6 +281,7 @@ def _show_file_picker_dialog(key):
                 for file in files:
                     if st.button(f"📄 {file}", key=f"{key}_file_{file}", use_container_width=True):
                         st.session_state[f'{key}_selected'] = os.path.join(current, file)
+                        # no need, st.session_state[f'{key}_show_dialog'] is False as soon as dialog is launched
                         st.session_state[f'{key}_show_dialog'] = False
                         st.rerun()
 
@@ -296,7 +301,8 @@ def _show_file_picker_dialog(key):
 
         with col2:
             if st.button("❌ Cancel", use_container_width=True, key=f"{key}_cancel_btn"):
-                st.session_state[f'{key}_show_dialog'] = False
+                # no need, st.session_state[f'{key}_show_dialog'] is False as soon as dialog is launched
+                #st.session_state[f'{key}_show_dialog'] = False
                 st.rerun()
 
     file_content()
