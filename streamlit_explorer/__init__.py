@@ -27,14 +27,7 @@ def DirPicker(key="dir_picker", start_path=None):
         >>>     st.write(f"You selected: {selected_folder}")
     """
     # Initialize session state
-    if f'{key}_current_path' not in st.session_state:
-        st.session_state[f'{key}_current_path'] = start_path or str(Path.home())
-    if f'{key}_path_history' not in st.session_state:
-        st.session_state[f'{key}_path_history'] = []
-    if f'{key}_selected' not in st.session_state:
-        st.session_state[f'{key}_selected'] = None
-    if f'{key}_show_dialog' not in st.session_state:
-        st.session_state[f'{key}_show_dialog'] = False
+    _common_init_session_statez(key,start_path)
 
     # Display selected folder
     if st.session_state[f'{key}_selected']:
@@ -71,14 +64,7 @@ def FilePicker(key="file_picker", start_path=None, file_extensions=None):
         >>>     st.write(f"You selected: {selected_file}")
     """
     # Initialize session state
-    if f'{key}_current_path' not in st.session_state:
-        st.session_state[f'{key}_current_path'] = start_path or str(Path.home())
-    if f'{key}_path_history' not in st.session_state:
-        st.session_state[f'{key}_path_history'] = []
-    if f'{key}_selected' not in st.session_state:
-        st.session_state[f'{key}_selected'] = None
-    if f'{key}_show_dialog' not in st.session_state:
-        st.session_state[f'{key}_show_dialog'] = False
+    _common_init_session_statez(key,start_path)
     if f'{key}_file_extensions' not in st.session_state:
         st.session_state[f'{key}_file_extensions'] = file_extensions
 
@@ -105,71 +91,19 @@ def _show_dir_picker_dialog(key):
 
     @st.fragment
     def folder_content():
-        st.markdown("""
-            <style>
-            /* 1. Réduire l'espace entre les éléments dans TOUS les blocs verticaux */
-            [data-testid="stVerticalBlock"] {
-                gap: 0.2rem !important;
-            }
-
-            /* 2. Réduire le padding interne des containers */
-            [data-testid="stVerticalBlockBorderWrapper"] > div:first-child {
-                padding: 0.5rem !important;
-            }
-
-            /* 3. Réduire la taille des boutons pour qu'ils soient moins hauts */
-            button[data-testid="stBaseButton-secondary"] {
-                padding-top: 0px !important;
-                padding-bottom: 0px !important;
-                min-height: 1.8rem !important;
-                line-height: 1.2 !important;
-            }
-
-            /* 4. Réduire la marge sous les textes (st.write / p) */
-            .stMarkdown p {
-                margin-bottom: 0px !important;
-            }
-
-            /* 5. Optionnel : Réduire la taille de la police pour gagner encore plus de place */
-            .stMarkdown p, button span {
-                font-size: 0.85rem !important;
-            }
-            </style>
-        """, unsafe_allow_html=True)
-
+        _common_dense_style()
 
         current = st.session_state[f'{key}_current_path']
 
-        # Initialize text input state if needed
-        if f'{key}_path_input_value' not in st.session_state:
-            st.session_state[f'{key}_path_input_value'] = current
-
-        # Update text input value when path changes
-        if st.session_state[f'{key}_path_input_value'] != current:
-            st.session_state[f'{key}_path_input_value'] = current
-            if f'{key}_path_input_key' in st.session_state:
-                st.session_state[f'{key}_path_input_key'] = current
-
-        # Text input for direct path entry
-        def on_path_change():
-            new_path = st.session_state[f'{key}_path_input_key']
-            if new_path != current and new_path.strip():
-                if os.path.isdir(new_path):
-                    st.session_state[f'{key}_path_history'].append(st.session_state[f'{key}_current_path'])
-                    st.session_state[f'{key}_current_path'] = new_path
-                    st.session_state[f'{key}_path_input_value'] = new_path
-
-        st.text_input("Enter path:", 
-                      #value=current,
-                      key=f'{key}_path_input_key', 
-                      label_visibility="collapsed",
-                      on_change=on_path_change)
+        _common_content_init0(key, current)
 
         # Search input
         search_query = st.text_input("🔍 Search folders:", key=f"{key}_search_input",
                                      placeholder="Type to filter folders in current location...")
 
+        ######################################################
         # Get list of folders in current directory
+        ######################################################
         try:
             folders = [f for f in os.listdir(current)
                        if os.path.isdir(os.path.join(current, f))]
@@ -182,74 +116,21 @@ def _show_dir_picker_dialog(key):
             st.error("Permission denied to access this folder")
             folders = []
 
-        # Up button to go to parent folder
-        parent_path = str(Path(current).parent)
-        is_at_root = parent_path == current
-
-        if st.button("⬆️ Up (Parent Folder)", key=f"{key}_up_button",
-                     use_container_width=True, disabled=is_at_root):
-            st.session_state[f'{key}_path_history'].append(st.session_state[f'{key}_current_path'])
-            st.session_state[f'{key}_current_path'] = parent_path
-            st.rerun(scope="fragment")
-
-               #  On injecte le CSS pour forcer la hauteur relative
-        st.markdown("""
-            <style>
-            /* 1. On cible le wrapper de mise en page (stLayoutWrapper) */
-            div[data-testid="stLayoutWrapper"][height="450px"] {
-                height: auto !important;
-                max-height: 40vh !important;
-                min-height: 150px !important;
-            }
-
-            /* 2. On cible le bloc vertical interne (stVerticalBlock) */
-            div[data-testid="stVerticalBlock"][height="450px"] {
-                height: auto !important;
-                max-height: 40vh !important;
-            }
-
-            /* 3. On s'assure que le scroll fonctionne toujours */
-            div[data-testid="stVerticalBlock"] {
-                overflow-y: auto !important;
-            }
-            </style>
-        """, unsafe_allow_html=True)
-
         # Create a scrollable container for folders
-        with st.container(height=450):
-            if folders:
-                #st.write("**Click a folder to navigate:**")
-                for folder in folders:
-                    if st.button(f"📂 {folder}", key=f"{key}_folder_{folder}", use_container_width=True):
-                        st.session_state[f'{key}_path_history'].append(st.session_state[f'{key}_current_path'])
-                        st.session_state[f'{key}_current_path'] = os.path.join(current, folder)
-                        st.rerun(scope="fragment")
-            else:
-                st.write("*No subfolders found*")
+        _common_display_folders_and_files(key, current, folders , files=[])
 
         # Action buttons
         st.divider()
         col1, col2, col3 = st.columns(3)
 
         with col1:
-            if st.button("⬅️ Back", disabled=len(st.session_state[f'{key}_path_history']) == 0,
-                        use_container_width=True, key=f"{key}_back_btn"):
-                if st.session_state[f'{key}_path_history']:
-                    st.session_state[f'{key}_current_path'] = st.session_state[f'{key}_path_history'].pop()
-                    st.rerun(scope="fragment")
+            _common_content_back(key)
 
         with col2:
-            if st.button("✅ Select", type="primary", use_container_width=True, key=f"{key}_select_btn"):
-                st.session_state[f'{key}_selected'] = st.session_state[f'{key}_current_path']
-                # no need, st.session_state[f'{key}_show_dialog'] is False as soon as dialog is launched
-                #st.session_state[f'{key}_show_dialog'] = False
-                st.rerun()
+            _common_content_select(key)
 
         with col3:
-            if st.button("❌ Cancel", use_container_width=True, key=f"{key}_cancel_btn"):
-                # no need, st.session_state[f'{key}_show_dialog'] is False as soon as dialog is launched
-                #st.session_state[f'{key}_show_dialog'] = False
-                st.rerun()
+            _common_content_cancel(key)
 
     folder_content()
 
@@ -260,71 +141,20 @@ def _show_file_picker_dialog(key):
 
     @st.fragment
     def file_content():
-        st.markdown("""
-            <style>
-            /* 1. Réduire l'espace entre les éléments dans TOUS les blocs verticaux */
-            [data-testid="stVerticalBlock"] {
-                gap: 0.2rem !important;
-            }
-
-            /* 2. Réduire le padding interne des containers */
-            [data-testid="stVerticalBlockBorderWrapper"] > div:first-child {
-                padding: 0.5rem !important;
-            }
-
-            /* 3. Réduire la taille des boutons pour qu'ils soient moins hauts */
-            button[data-testid="stBaseButton-secondary"] {
-                padding-top: 0px !important;
-                padding-bottom: 0px !important;
-                min-height: 1.8rem !important;
-                line-height: 1.2 !important;
-            }
-
-            /* 4. Réduire la marge sous les textes (st.write / p) */
-            .stMarkdown p {
-                margin-bottom: 0px !important;
-            }
-
-            /* 5. Optionnel : Réduire la taille de la police pour gagner encore plus de place */
-            .stMarkdown p, button span {
-                font-size: 0.85rem !important;
-            }
-            </style>
-        """, unsafe_allow_html=True)
+        _common_dense_style()
                 
         current = st.session_state[f'{key}_current_path']
         file_extensions = st.session_state[f'{key}_file_extensions']
 
-        # Initialize text input state if needed
-        if f'{key}_path_input_value' not in st.session_state:
-            st.session_state[f'{key}_path_input_value'] = current
-
-        # Update text input value when path changes
-        if st.session_state[f'{key}_path_input_value'] != current:
-            st.session_state[f'{key}_path_input_value'] = current
-            if f'{key}_path_input_key' in st.session_state:
-                st.session_state[f'{key}_path_input_key'] = current
-
-        # Text input for direct path entry
-        def on_path_change():
-            new_path = st.session_state[f'{key}_path_input_key']
-            if new_path != current and new_path.strip():
-                if os.path.isdir(new_path):
-                    st.session_state[f'{key}_path_history'].append(st.session_state[f'{key}_current_path'])
-                    st.session_state[f'{key}_current_path'] = new_path
-                    st.session_state[f'{key}_path_input_value'] = new_path
-
-        st.text_input("Enter path:", 
-                      #value=current,
-                      key=f'{key}_path_input_key', 
-                      label_visibility="collapsed",
-                      on_change=on_path_change)
+        _common_content_init0(key, current)
 
         # Search input
         search_query = st.text_input("🔍 Search:", key=f"{key}_search_input",
                                      placeholder="Type to filter files and folders...")
 
+        ######################################################
         # Get list of folders and files in current directory
+        ######################################################
         try:
             all_items = os.listdir(current)
             folders = [f for f in all_items if os.path.isdir(os.path.join(current, f))]
@@ -346,80 +176,198 @@ def _show_file_picker_dialog(key):
             folders = []
             files = []
 
-        # Up button to go to parent folder
-        parent_path = str(Path(current).parent)
-        is_at_root = parent_path == current
-
-        if st.button("⬆️ Up (Parent Folder)", key=f"{key}_up_button",
-                     use_container_width=True, disabled=is_at_root):
-            st.session_state[f'{key}_path_history'].append(st.session_state[f'{key}_current_path'])
-            st.session_state[f'{key}_current_path'] = parent_path
-            st.rerun(scope="fragment")
-
-
-        #  On injecte le CSS pour forcer la hauteur relative
-        st.markdown("""
-            <style>
-            /* 1. On cible le wrapper de mise en page (stLayoutWrapper) */
-            div[data-testid="stLayoutWrapper"][height="450px"] {
-                height: auto !important;
-                max-height: 40vh !important;
-                min-height: 150px !important;
-            }
-
-            /* 2. On cible le bloc vertical interne (stVerticalBlock) */
-            div[data-testid="stVerticalBlock"][height="450px"] {
-                height: auto !important;
-                max-height: 40vh !important;
-            }
-
-            /* 3. On s'assure que le scroll fonctionne toujours */
-            div[data-testid="stVerticalBlock"] {
-                overflow-y: auto !important;
-            }
-            </style>
-        """, unsafe_allow_html=True)
-
-        
         # Create a scrollable container for folders and files
-        with st.container(height=450):
-            # Display folders
-            if folders:
-                #st.write("**Folders:**")
-                for folder in folders:
-                    if st.button(f"📂 {folder}", key=f"{key}_folder_{folder}", use_container_width=True):
-                        st.session_state[f'{key}_path_history'].append(st.session_state[f'{key}_current_path'])
-                        st.session_state[f'{key}_current_path'] = os.path.join(current, folder)
-                        st.rerun(scope="fragment")
-
-            # Display files
-            if files:
-                #st.write("**Files:**")
-                for file in files:
-                    if st.button(f"📄 {file}", key=f"{key}_file_{file}", use_container_width=True):
-                        st.session_state[f'{key}_selected'] = os.path.join(current, file)
-                        # no need, st.session_state[f'{key}_show_dialog'] is False as soon as dialog is launched
-                        st.session_state[f'{key}_show_dialog'] = False
-                        st.rerun()
-
-            if not folders and not files:
-                st.write("*No items found*")
+        _common_display_folders_and_files(key, current, folders , files)
 
         # Action buttons
         st.divider()
         col1, col2 = st.columns(2)
 
         with col1:
-            if st.button("⬅️ Back", disabled=len(st.session_state[f'{key}_path_history']) == 0,
-                        use_container_width=True, key=f"{key}_back_btn"):
-                if st.session_state[f'{key}_path_history']:
-                    st.session_state[f'{key}_current_path'] = st.session_state[f'{key}_path_history'].pop()
-                    st.rerun(scope="fragment")
+            _common_content_back(key)
 
         with col2:
-            if st.button("❌ Cancel", use_container_width=True, key=f"{key}_cancel_btn"):
-                # no need, st.session_state[f'{key}_show_dialog'] is False as soon as dialog is launched
-                #st.session_state[f'{key}_show_dialog'] = False
-                st.rerun()
+            _common_content_cancel(key)
 
     file_content()
+
+
+###############
+# Common methods
+###############
+
+# Style applied to make files and folders display ore dense, to see more of them at the same time.
+def _common_dense_style():
+    st.markdown("""
+        <style>
+        /* 1. Réduire l'espace entre les éléments dans TOUS les blocs verticaux */
+        [data-testid="stVerticalBlock"] {
+            gap: 0.2rem !important;
+        }
+
+        /* 2. Réduire le padding interne des containers */
+        [data-testid="stVerticalBlockBorderWrapper"] > div:first-child {
+            padding: 0.5rem !important;
+        }
+
+        /* 3. Réduire la taille des boutons pour qu'ils soient moins hauts */
+        button[data-testid="stBaseButton-secondary"],
+        button[data-testid="stBaseButton-primary"] 
+        {
+            padding-top: 0px !important;
+            padding-bottom: 0px !important;
+            min-height: 1.8rem !important;
+            line-height: 1.2 !important;
+        }
+        
+        /* Align text left in buttons */
+        button[data-testid="stBaseButton-secondary"], 
+        button[data-testid="stBaseButton-secondary"] div,
+        button[data-testid="stBaseButton-secondary"] p,
+        button[data-testid="stBaseButton-primary"], 
+        button[data-testid="stBaseButton-primary"] div,
+        button[data-testid="stBaseButton-primary"] p
+        {
+            /*display: flex !important;*/
+            justify-content: flex-start !important;
+            text-align: left !important;
+            /*width: 100% !important;*/
+            /*padding-left: 10px !important;*/
+        }
+
+        /* 4. Réduire la marge sous les textes (st.write / p) */
+        /*
+        .stMarkdown p {
+            margin-bottom: 0px !important;
+        }
+        */
+
+        /* 5. Optionnel : Réduire la taille de la police pour gagner encore plus de place */
+        .stMarkdown p, button span {
+            font-size: 0.85rem !important;
+        }
+        </style>
+    """, unsafe_allow_html=True)
+
+# Style applied to limit the height of the content of the modal dialog
+def _common_heigh_style():
+    st.markdown("""
+        <style>
+        /* 1. On cible le wrapper de mise en page (stLayoutWrapper) */
+        div[data-testid="stLayoutWrapper"][height="450px"] {
+            height: auto !important;
+            max-height: 40vh !important;
+            min-height: 150px !important;
+        }
+
+        /* 2. On cible le bloc vertical interne (stVerticalBlock) */
+        div[data-testid="stVerticalBlock"][height="450px"] {
+            height: auto !important;
+            max-height: 40vh !important;
+        }
+
+        /* 3. On s'assure que le scroll fonctionne toujours */
+        div[data-testid="stVerticalBlock"] {
+            overflow-y: auto !important;
+        }
+        </style>
+    """, unsafe_allow_html=True)
+
+# Init of file / folder picker
+def _common_content_init0(key, current):
+    # Initialize text input state if needed
+    if f'{key}_path_input_value' not in st.session_state:
+        st.session_state[f'{key}_path_input_value'] = current
+
+    # Update text input value when path changes
+    if st.session_state[f'{key}_path_input_value'] != current:
+        st.session_state[f'{key}_path_input_value'] = current
+        if f'{key}_path_input_key' in st.session_state:
+            st.session_state[f'{key}_path_input_key'] = current
+
+    # Text input for direct path entry
+    def on_path_change():
+        new_path = st.session_state[f'{key}_path_input_key']
+        if new_path != current and new_path.strip():
+            if os.path.isdir(new_path):
+                st.session_state[f'{key}_path_history'].append(st.session_state[f'{key}_current_path'])
+                st.session_state[f'{key}_current_path'] = new_path
+                st.session_state[f'{key}_path_input_value'] = new_path
+
+    st.text_input("Enter path:", 
+                    #value=current,
+                    key=f'{key}_path_input_key', 
+                    label_visibility="collapsed",
+                    on_change=on_path_change)
+    
+# Up button to go to parent folder
+def _common_parent_folder(key, current):
+    # Up button to go to parent folder
+    parent_path = str(Path(current).parent)
+    is_at_root = parent_path == current
+
+    if st.button("⬆️ Up (Parent Folder)", key=f"{key}_up_button",
+                    use_container_width=True, disabled=is_at_root):
+        st.session_state[f'{key}_path_history'].append(st.session_state[f'{key}_current_path'])
+        st.session_state[f'{key}_current_path'] = parent_path
+        st.rerun(scope="fragment")
+
+def _common_display_folders_and_files(key, current, folders , files):
+    # Up button to go to parent folder
+    _common_parent_folder(key, current)
+
+    #  On injecte le CSS pour forcer la hauteur relative
+    _common_heigh_style()
+    
+    # Create a scrollable container for folders and files
+    with st.container(height=450):
+        # Display folders
+        if folders:
+            for folder in folders:
+                if st.button(f"📂 {folder}", key=f"{key}_folder_{folder}", use_container_width=True):
+                    st.session_state[f'{key}_path_history'].append(st.session_state[f'{key}_current_path'])
+                    st.session_state[f'{key}_current_path'] = os.path.join(current, folder)
+                    st.rerun(scope="fragment")
+
+        # Display files
+        if files:
+            #st.write("**Files:**")
+            for file in files:
+                if st.button(f"📄 {file}", key=f"{key}_file_{file}", use_container_width=True):
+                    st.session_state[f'{key}_selected'] = os.path.join(current, file)
+                    # no need, st.session_state[f'{key}_show_dialog'] is False as soon as dialog is launched
+                    #st.session_state[f'{key}_show_dialog'] = False
+                    st.rerun()
+
+        if not folders and not files:
+            st.write("*No items found*")
+
+def _common_content_back(key):
+    if st.button("⬅️ Back", disabled=len(st.session_state[f'{key}_path_history']) == 0,
+            use_container_width=True, key=f"{key}_back_btn"):
+        if st.session_state[f'{key}_path_history']:
+            st.session_state[f'{key}_current_path'] = st.session_state[f'{key}_path_history'].pop()
+            st.rerun(scope="fragment")
+
+def _common_content_select(key):
+    if st.button("✅ Select", type="primary", use_container_width=True, key=f"{key}_select_btn"):
+        st.session_state[f'{key}_selected'] = st.session_state[f'{key}_current_path']
+        # no need, st.session_state[f'{key}_show_dialog'] is False as soon as dialog is launched
+        #st.session_state[f'{key}_show_dialog'] = False
+        st.rerun()
+
+def _common_content_cancel(key):
+    if st.button("❌ Cancel", use_container_width=True, key=f"{key}_cancel_btn"):
+        # no need, st.session_state[f'{key}_show_dialog'] is False as soon as dialog is launched
+        #st.session_state[f'{key}_show_dialog'] = False
+        st.rerun()
+
+def _common_init_session_statez(key,start_path):
+    if f'{key}_current_path' not in st.session_state:
+        st.session_state[f'{key}_current_path'] = start_path or str(Path.home())
+    if f'{key}_path_history' not in st.session_state:
+        st.session_state[f'{key}_path_history'] = []
+    if f'{key}_selected' not in st.session_state:
+        st.session_state[f'{key}_selected'] = None
+    if f'{key}_show_dialog' not in st.session_state:
+        st.session_state[f'{key}_show_dialog'] = False
