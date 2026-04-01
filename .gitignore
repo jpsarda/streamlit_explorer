@@ -6,3 +6,6 @@
 
 # Informations sur les œufs Python (fichiers de métadonnées)
 *.egg-info/
+
+# Env
+Icon?
